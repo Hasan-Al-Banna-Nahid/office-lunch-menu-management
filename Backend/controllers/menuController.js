@@ -6,11 +6,9 @@ exports.createMenu = async (req, res) => {
 
     // Check if date is provided and convert it to the correct format
     if (!date || !items) {
-      return res
-        .status(400)
-        .json({
-          error: "Make Sure All Required Key Is Fulfilled With Correct Format",
-        });
+      return res.status(400).json({
+        error: "Make Sure All Required Key Is Fulfilled With Correct Format",
+      });
     }
 
     // Parse date from the format 'DD/MM/YYYY' to 'YYYY-MM-DD'
@@ -38,7 +36,9 @@ exports.createMenu = async (req, res) => {
 
 exports.getMenus = async (req, res) => {
   try {
-    const menus = await Menu.findAll();
+    const query = "SELECT * FROM menus";
+    const result = await db.query(query);
+    const menus = result.rows;
     res.status(200).json(menus);
   } catch (error) {
     res.status(500).json({ error: error.message });
