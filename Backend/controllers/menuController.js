@@ -67,18 +67,55 @@ exports.getMenus = async (req, res) => {
   }
 };
 
-exports.getMenuById = async (req, res) => {
+exports.searchMenus = async (req, res) => {
   try {
-    const menu = await Menu.findByPk(req.params.id);
-    if (menu) {
-      res.status(200).json(menu);
-    } else {
-      res.status(404).json({ error: "Menu not found" });
+    const { query } = req.query;
+
+    if (!query) {
+      return res
+        .status(400)
+        .json({ error: "Query parameter 'query' is required" });
     }
+
+    // Log the search query for debugging
+    console.log("Search query:", query);
+
+    // Construct the SQL query to search for menus
+    const searchQuery = `
+    SELECT *
+    FROM menus
+    WHERE LOWER(items::text) LIKE LOWER($1)
+     OR date::text LIKE $1
+   OR date::text = $1;
+    
+    `;
+
+    // Log the SQL query for debugging
+    console.log("SQL query:", searchQuery);
+
+    // Execute the SQL query
+    const result = await db.query(searchQuery, [`%${query.toLowerCase()}%`]);
+    const matchedMenus = result.rows;
+    res.status(200).json(matchedMenus);
+    console.log("Matched menus:", matchedMenus);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
+
+// exports.getMenuById = async (req, res) => {
+//   try {
+//     const menu = await Menu.findByPk(req.params.id);
+//     if (menu) {
+//       res.status(200).json(menu);
+//     } else {
+//       res.status(404).json({ error: "Menu not found" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 exports.updateMenu = async (req, res) => {
   try {
