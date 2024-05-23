@@ -1,14 +1,40 @@
-const { Menu } = require("../models/menu");
+const db = require("../config/database");
 
 exports.createMenu = async (req, res) => {
   try {
     const { date, items } = req.body;
-    const menu = await Menu.create({ date, items });
-    res.status(201).json(menu);
+
+    // Check if date is provided and convert it to the correct format
+    if (!date || !items) {
+      return res
+        .status(400)
+        .json({
+          error: "Make Sure All Required Key Is Fulfilled With Correct Format",
+        });
+    }
+
+    // Parse date from the format 'DD/MM/YYYY' to 'YYYY-MM-DD'
+    const [day, month, year] = date.split("/");
+    const formattedDate = `${year}-${month}-${day}`;
+
+    // Validate the date format
+    if (isNaN(new Date(formattedDate).getTime())) {
+      return res.status(400).json({ error: "Invalid date format" });
+    }
+
+    const result = await db.query(
+      "INSERT INTO menus (date, items) VALUES ($1, $2) RETURNING *",
+      [formattedDate, items]
+    );
+
+    res.status(201).json(result.rows[0]);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
+
+// Other controller methods
 
 exports.getMenus = async (req, res) => {
   try {
