@@ -59,7 +59,7 @@ const twilioClient = twilio(
 
 // Send verification email
 const sendVerificationEmail = (email, otp) => {
-  const verificationUrl = `http://localhost:5000/verify?email=${encodeURIComponent(
+  const verificationUrl = `http://localhost:5000/api/v1/auth/verify?email=${encodeURIComponent(
     email
   )}&otp=${encodeURIComponent(otp)}`;
   const mailOptions = {
@@ -78,16 +78,16 @@ const sendVerificationEmail = (email, otp) => {
 };
 
 // Send OTP to phone
-const sendOtpToPhone = (phone, otp) => {
-  twilioClient.messages
-    .create({
-      body: `Your OTP code is: ${otp}`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phone,
-    })
-    .then((message) => console.log("OTP sent: ", message.sid))
-    .catch((error) => console.error("Error sending OTP: ", error));
-};
+// const sendOtpToPhone = (phone, otp) => {
+//   twilioClient.messages
+//     .create({
+//       body: `Your OTP code is: ${otp}`,
+//       from: process.env.TWILIO_PHONE_NUMBER,
+//       to: phone,
+//     })
+//     .then((message) => console.log("OTP sent: ", message.sid))
+//     .catch((error) => console.error("Error sending OTP: ", error));
+// };
 
 // Generate OTP
 const generateOtp = () => {
@@ -205,9 +205,10 @@ router.post(
   }
 );
 
+// Verify email and OTP route
 // OTP verification route
-router.post("/verify", async (req, res) => {
-  const { email, otp } = req.body;
+router.get("/verify", async (req, res) => {
+  const { email, otp } = req.query;
 
   try {
     const client = await pool.connect();
@@ -232,10 +233,6 @@ router.post("/verify", async (req, res) => {
         user.email,
         "Your registration failed due to expired OTP."
       );
-      // sendOtpToPhone(
-      //   user.phone,
-      //   "Your registration failed due to expired OTP."
-      // );
 
       return res
         .status(400)
@@ -253,7 +250,8 @@ router.post("/verify", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-cron.schedule("*/5 * * * *", async () => {
+
+cron.schedule("*/1 * * * *", async () => {
   try {
     const client = await pool.connect();
 
@@ -269,10 +267,10 @@ cron.schedule("*/5 * * * *", async () => {
         user.email,
         "Your registration failed due to expired OTP."
       );
-      sendOtpToPhone(
-        user.phone,
-        "Your registration failed due to expired OTP."
-      );
+      // sendOtpToPhone(
+      //   user.phone,
+      //   "Your registration failed due to expired OTP."
+      // );
     });
 
     console.log(`Deleted ${result.rows.length} unverified users.`);
@@ -293,6 +291,11 @@ router.post("/login", async (req, res) => {
     if (!user) {
       client.release();
       return res.status(401).json({ error: "Email is not registered" });
+    }
+
+    if (!user.is_verified) {
+      client.release();
+      return res.status(401).json({ error: "Email is not verified" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
