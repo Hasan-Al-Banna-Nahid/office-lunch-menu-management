@@ -86,7 +86,7 @@ exports.searchMenus = async (req, res) => {
     FROM menus
     WHERE LOWER(items::text) LIKE LOWER($1)
      OR date::text LIKE $1
-   OR date::text = $1;
+   OR date::text = $1;0
     
     `;
 
@@ -117,22 +117,154 @@ exports.searchMenus = async (req, res) => {
 //   }
 // };
 
-exports.updateMenu = async (req, res) => {
+exports.updateMenuPrompt = async (req, res) => {
   try {
-    const { date, items } = req.body;
-    const [updated] = await Menu.update(
-      { date, items },
-      {
-        where: { id: req.params.id },
+    const { id } = req.params;
+    const { updateType, date, items } = req.body;
+
+    // Check if updateType is provided
+    if (!updateType) {
+      return res.status(400).json({ error: "Update type is required" });
+    }
+
+    if (updateType === "date") {
+      // Check if date is provided
+      if (!date) {
+        return res
+          .status(400)
+          .json({ error: "Date is required for updating date" });
       }
-    );
-    if (updated) {
-      const updatedMenu = await Menu.findByPk(req.params.id);
+
+      // Convert date format from 'DD/MM/YYYY' to 'YYYY-MM-DD'
+      const [day, month, year] = date.split("/");
+      const formattedDate = `${year}-${month}-${day}`;
+
+      // Validate the formatted date
+      if (isNaN(new Date(formattedDate).getTime())) {
+        return res.status(400).json({ error: "Invalid date format" });
+      }
+
+      // Update date
+      const updateQuery = `
+        UPDATE menus
+        SET date = $1
+        WHERE id = $2
+        RETURNING *;
+      `;
+      const result = await db.query(updateQuery, [formattedDate, id]);
+      const updatedMenu = result.rows[0];
+      if (!updatedMenu) {
+        return res.status(404).json({ error: "Menu not found" });
+      }
+      res.status(200).json(updatedMenu);
+    } else if (updateType === "items") {
+      // Check if items are provided
+      if (!items) {
+        return res
+          .status(400)
+          .json({ error: "Items are required for updating items" });
+      }
+
+      // Update items
+      const updateQuery = `
+        UPDATE menus
+        SET items = $1
+        WHERE id = $2
+        RETURNING *;
+      `;
+      const result = await db.query(updateQuery, [items, id]);
+      const updatedMenu = result.rows[0];
+      if (!updatedMenu) {
+        return res.status(404).json({ error: "Menu not found" });
+      }
       res.status(200).json(updatedMenu);
     } else {
-      res.status(404).json({ error: "Menu not found" });
+      return res.status(400).json({ error: "Invalid update type" });
     }
   } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateMenu = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { updateType, date, items, category } = req.body;
+
+    // Fetch the current menu from the database
+    const menuResult = await db.query("SELECT * FROM menus WHERE id = $1", [
+      id,
+    ]);
+    const currentMenu = menuResult.rows[0];
+
+    if (!currentMenu) {
+      return res.status(404).json({ error: "Menu not found" });
+    }
+
+    if (updateType === "date") {
+      // Check if date is provided
+      if (!date) {
+        return res
+          .status(400)
+          .json({ error: "Date is required for updating date" });
+      }
+
+      // Convert date format from 'DD/MM/YYYY' to 'YYYY-MM-DD'
+      const [day, month, year] = date.split("/");
+      const formattedDate = `${year}-${month}-${day}`;
+
+      // Validate the formatted date
+      if (isNaN(new Date(formattedDate).getTime())) {
+        return res.status(400).json({ error: "Invalid date format" });
+      }
+
+      // Update date while keeping existing items
+      const updateQuery = `
+        UPDATE menus
+        SET date = $1
+        WHERE id = $2
+        RETURNING *;
+      `;
+      const result = await db.query(updateQuery, [formattedDate, id]);
+      const updatedMenu = result.rows[0];
+      updatedMenu.items = JSON.parse(updatedMenu.items); // Ensure items are parsed
+      return res.status(200).json(updatedMenu);
+    } else if (updateType === "items") {
+      // Check if items and category are provided
+      if (!items || !category) {
+        return res
+          .status(400)
+          .json({
+            error: "Items and category are required for updating items",
+          });
+      }
+
+      // Parse current items as JSON
+      const currentItems = JSON.parse(currentMenu.items);
+
+      // Update the specified category with the new items
+      currentItems[category] = items;
+
+      // Convert merged items back to string for storage
+      const updatedItemsString = JSON.stringify(currentItems);
+
+      // Update items while keeping existing date
+      const updateQuery = `
+        UPDATE menus
+        SET items = $1
+        WHERE id = $2
+        RETURNING *;
+      `;
+      const result = await db.query(updateQuery, [updatedItemsString, id]);
+      const updatedMenu = result.rows[0];
+      updatedMenu.items = JSON.parse(updatedMenu.items); // Ensure items are parsed
+      return res.status(200).json(updatedMenu);
+    } else {
+      return res.status(400).json({ error: "Invalid update type" });
+    }
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };

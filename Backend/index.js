@@ -4,6 +4,8 @@ require("dotenv").config();
 const cors = require("cors");
 const menuRoutes = require("./routes/menuRoutes");
 const userRoutes = require("./routes/userRoutes");
+const protectedRoutes = require("./routes/protectedRoutes");
+const authController = require("./controllers/authController");
 const db = require("./config/database");
 
 const app = express();
@@ -15,8 +17,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1", menuRoutes);
-app.use("/api/v1", userRoutes);
-
+// app.use("/api/v1", userRoutes);
+app.use("/api/v1/auth", authController);
+app.use("/api/v1", protectedRoutes);
 app.get("/", (req, res) => {
   res.send("Welcome To RoeBenDev's Lunch Menu");
 });
