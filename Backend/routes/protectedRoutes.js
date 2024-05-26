@@ -1,19 +1,14 @@
+// routes/protected.js
 const express = require("express");
-const { authenticateToken, authorizeRoles } = require("../middlewares/auth");
 const router = express.Router();
+const { authenticateToken, authorizeRoles } = require("../middlewares/auth");
 
-// Example of a protected route
-router.get("/admin", authenticateToken, authorizeRoles("admin"), (req, res) => {
-  res.send("Hello Admin");
-});
-
-// Example of a user-only route
 router.get(
-  "/user",
+  "/protected",
   authenticateToken,
-  authorizeRoles("user", "admin"),
+  authorizeRoles("admin", "user"),
   (req, res) => {
-    res.send("Hello User");
+    res.json({ message: "Protected route", user: req.user });
   }
 );
 
