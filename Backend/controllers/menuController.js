@@ -284,3 +284,36 @@ exports.deleteMenu = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+exports.getEmployeeMenuChoices = async (req, res) => {
+  try {
+    const { menu_id } = req.params;
+
+    // Check if the current user is an admin
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Access is limited to administrators." });
+    }
+
+    // Query to get employee details and their choices for a specific menu
+    const query = `
+      SELECT u.id, u.name, u.email, ec.choices
+      FROM users u
+      JOIN employee_choices ec ON u.id = ec.user_id
+      WHERE ec.menu_id = $1;
+    `;
+    const values = [menu_id];
+    const result = await db.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No employee choices found for this menu." });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};

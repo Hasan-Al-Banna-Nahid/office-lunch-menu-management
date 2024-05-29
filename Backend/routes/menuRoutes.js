@@ -17,6 +17,12 @@ router.post(
 );
 router.get("/menus", menuController.getMenus);
 router.get("/menus/search", menuController.searchMenus);
+router.get(
+  "/menus/:menu_id/employee-choices",
+  authenticateToken,
+  authorizeRoles("admin"),
+  menuController.getEmployeeMenuChoices
+);
 // router.put("/menus/:id", menuController.updateMenuPrompt);
 router.put("/menus/:id", menuController.updateMenu);
 router.delete("/menus/:id", menuController.deleteMenu);
