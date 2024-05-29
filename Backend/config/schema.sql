@@ -20,10 +20,10 @@ CREATE TABLE menus (
 );
 CREATE TABLE employee_choices (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL,
-  menu_id INTEGER NOT NULL,
+  user_id INT NOT NULL,
+  menu_id INT NOT NULL,
   choices JSONB NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (user_id, menu_id)
 );
+
+

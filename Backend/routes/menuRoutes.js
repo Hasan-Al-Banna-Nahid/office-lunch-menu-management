@@ -12,7 +12,7 @@ router.post(
 router.post(
   "/choose-food",
   authenticateToken,
-  authorizeRoles,
+  authorizeRoles("user"),
   menuController.chooseFood
 );
 router.get("/menus", menuController.getMenus);

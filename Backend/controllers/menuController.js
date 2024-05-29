@@ -46,38 +46,35 @@ exports.createMenu = async (req, res) => {
 
 exports.chooseFood = async (req, res) => {
   try {
-    const { menuId, choices } = req.body;
-    const userId = req.user.id;
+    const { menu_id, choices } = req.body;
 
-    // Check if the menu exists
-    const menuResult = await db.query("SELECT * FROM menus WHERE id = $1", [
-      menuId,
-    ]);
-    const menu = menuResult.rows[0];
+    console.log("Request body:", req.body); // Debug: Log the incoming request body
 
-    if (!menu) {
-      return res.status(404).json({ error: "Menu not found" });
+    // Validate menu_id and choices
+    if (!menu_id || !Array.isArray(choices) || choices.length === 0) {
+      return res.status(400).json({
+        error:
+          "menu_id and choices are required, and choices must be a non-empty array",
+      });
     }
 
-    // Validate choices
-    if (!choices || typeof choices !== "object") {
-      return res.status(400).json({ error: "Choices object is required" });
-    }
+    const userId = req.user.userId; // Correcting this line to match the actual property name
 
-    // Insert the employee choices into the database
+    console.log("User ID:", userId); // Debug: Log the user ID
+
+    // Database query to insert or update the employee choices
     const query = `
       INSERT INTO employee_choices (user_id, menu_id, choices)
       VALUES ($1, $2, $3)
       ON CONFLICT (user_id, menu_id)
-      DO UPDATE SET choices = $3
+      DO UPDATE SET choices = EXCLUDED.choices
       RETURNING *;
     `;
-    const values = [userId, menuId, JSON.stringify(choices)];
-
+    const values = [userId, menu_id, JSON.stringify(choices)];
     const result = await db.query(query, values);
-    const employeeChoice = result.rows[0];
+    const choice = result.rows[0];
 
-    res.status(201).json(employeeChoice);
+    res.status(201).json(choice);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
