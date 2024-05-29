@@ -319,5 +319,39 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+router.put(
+  "/make-admin/:userId",
+  authenticateToken,
+  // authorizeRoles("admin"), // Only admins can access this endpoint
+  async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+      const client = await pool.connect();
+
+      // Check if user exists
+      const userQuery = "SELECT * FROM users WHERE id = $1";
+      const userResult = await client.query(userQuery, [userId]);
+
+      if (userResult.rows.length === 0) {
+        client.release();
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Update user's role to admin
+      const updateRoleQuery = "UPDATE users SET role = $1 WHERE id = $2";
+      await client.query(updateRoleQuery, ["admin", userId]);
+
+      client.release();
+
+      res
+        .status(200)
+        .json({ message: "User role updated to admin successfully" });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
 
 module.exports = router;

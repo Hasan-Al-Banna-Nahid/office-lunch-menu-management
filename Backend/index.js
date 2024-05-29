@@ -21,7 +21,7 @@ app.use("/api/v1", menuRoutes);
 app.use("/api/v1/auth", authController);
 app.use("/api/v1", protectedRoutes);
 app.get("/", (req, res) => {
-  res.send("Welcome To RoeBenDev's Lunch Menu");
+  res.send("Welcome To RoBenDev's Lunch Menu");
 });
 app.get("/test-db", async (req, res) => {
   try {

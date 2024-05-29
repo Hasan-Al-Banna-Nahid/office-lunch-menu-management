@@ -13,4 +13,17 @@ CREATE TABLE users (
     otp VARCHAR(6),
     otp_expiry TIMESTAMP
 );
-SELECT * FROM users
+CREATE TABLE menus (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    items JSONB
+);
+CREATE TABLE employee_choices (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  menu_id INTEGER NOT NULL,
+  choices JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user_id, menu_id)
+);
