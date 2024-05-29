@@ -295,11 +295,12 @@ exports.getEmployeeMenuChoices = async (req, res) => {
         .json({ error: "Unauthorized: Access is limited to administrators." });
     }
 
-    // Query to get employee details and their choices for a specific menu
+    // Query to get employee details, their choices, and the menu date for a specific menu
     const query = `
-      SELECT u.id, u.name, u.email, ec.choices
+      SELECT u.id, u.name, u.email, ec.choices, m.date
       FROM users u
       JOIN employee_choices ec ON u.id = ec.user_id
+      JOIN menus m ON ec.menu_id = m.id
       WHERE ec.menu_id = $1;
     `;
     const values = [menu_id];
