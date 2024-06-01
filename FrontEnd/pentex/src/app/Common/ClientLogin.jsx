@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaPersonRunning } from "react-icons/fa6";
 import LoadLoginData from "../libs/LoadLoginAPI";
+import toast, { Toaster } from "react-hot-toast";
 
 const ClientLogin = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -21,14 +22,18 @@ const ClientLogin = () => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
-    const pass = form.pass.value;
-    await LoadLoginData(email, pass)
-      .then((res) => console.log(res))
-      .catch((err) => {
-        console.log(err);
-        return;
-      });
-    console.log(passRef.current.value);
+    const password = form.pass.value;
+    try {
+      const response = await LoadLoginData(email, password);
+      console.log(response.data);
+    } catch (error) {
+      toast.error(error.response.data.error);
+      console.log(error);
+      console.error(
+        "Login error:",
+        error.response ? error.response.data : error.message
+      );
+    }
   };
   const handleForgotPass = () => {
     setIsForgotPass(true);
@@ -42,6 +47,9 @@ const ClientLogin = () => {
   };
   return (
     <React.Fragment>
+      <>
+        <Toaster />
+      </>
       <div className="hero  min-h-screen font-bold ">
         <div className="hero-content flex-col lg:flex-row-reverse bg-base-300 animate-glow2 rounded-lg">
           <div className="text-center lg:text-left">
