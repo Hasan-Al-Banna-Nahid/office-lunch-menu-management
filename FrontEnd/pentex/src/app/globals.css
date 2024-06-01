@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.brandName {
+  @apply bg-gradient-to-r from-pink-500 to-purple-800 to-white bg-clip-text text-transparent;
+}
+.PlaceholderName {
+  @apply bg-gradient-to-r from-red-500 to-purple-800 to-white bg-clip-text text-transparent;
+}
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px #7e22ce, 0 0 10px #7e22ce, 0 0 20px #7e22ce,
+      0 0 40px #7e22ce, 0 0 80px #7e22ce;
+  }
+  100% {
+    box-shadow: 0 0 10px #7e22ce, 0 0 20px #7e22ce, 0 0 40px #7e22ce,
+      0 0 80px #7e22ce, 0 0 160px #7e22ce;
+  }
+}
+@keyframes glow2 {
+  0% {
+    box-shadow: 0 0 5px #7e22ce, 0 0 10px #ce2222, 0 0 20px #ce6722,
+      0 0 40px #7e22ce, 0 0 80px #7e22ce;
+  }
+  100% {
+    box-shadow: 0 0 10px #03740a, 0 0 20px #7e22ce, 0 0 40px #7e22ce,
+      0 0 80px #7e22ce, 0 0 160px #7e22ce;
+  }
+}
+.animate-glow {
+  animation: glow 2s infinite alternate;
+}
+.animate-glow2 {
+  animation: glow2 2s infinite alternate;
+}
