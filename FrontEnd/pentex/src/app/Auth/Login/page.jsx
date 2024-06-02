@@ -3,9 +3,9 @@ import React from "react";
 const page = () => {
   return (
     <React.Fragment>
-      <h2 className="text-white animate-glow2 text-center text-4xl font-bold">
+      {/* <h2 className="text-white animate-glow2 text-center text-4xl font-bold">
         Ro Ben Dev's
-      </h2>
+      </h2> */}
 
       <>
         <ClientLogin />

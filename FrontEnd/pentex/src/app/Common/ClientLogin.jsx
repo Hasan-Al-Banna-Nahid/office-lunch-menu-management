@@ -17,6 +17,7 @@ const ClientLogin = () => {
   const passRef = useRef();
   const [isLoginPage, setIsLoginPage] = useState(false);
   const [isForgotPass, setIsForgotPass] = useState(false);
+  const [user, setUser] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +26,14 @@ const ClientLogin = () => {
     const password = form.pass.value;
     try {
       const response = await LoadLoginData(email, password);
-      console.log(response.data);
+      typeof window !== "undefined"
+        ? window.localStorage.setItem("access-token", response.data.token)
+        : null;
+      setUser(response.data.user);
+      console.table(response);
+      response.status === 200 && response.statusText === "OK"
+        ? router.push("/Navbar")
+        : null;
     } catch (error) {
       toast.error(error.response.data.error);
       console.log(error);
@@ -53,18 +61,6 @@ const ClientLogin = () => {
       <div className="hero  min-h-screen font-bold ">
         <div className="hero-content flex-col lg:flex-row-reverse bg-base-300 animate-glow2 rounded-lg">
           <div className="text-center lg:text-left">
-            {/* <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-            <lottie-player
-              src="https://lottie.host/8c80f416-d119-4e26-b2fb-6785526bf7e3/WEI1nnD5iB.json"
-              background="##FFFFFF"
-              speed="1"
-              style={{ width: "300px", height: "300px" }}
-              loop
-              controls
-              autoplay
-              direction="1"
-              mode="normal"
-            ></lottie-player> */}
             <Image
               src={LoginPic}
               placeholder="blur"
@@ -131,7 +127,13 @@ const ClientLogin = () => {
                   </label>
                 </div>
               )}
-              <div>
+
+              <div className="form-control mt-6">
+                <button className="btn btn-primary hover:btn-outline scale-75 hover:scale-110 placeholderName  transition-all text-xl ">
+                  {isForgotPass ? "Please Press Me" : "Login"}
+                </button>
+              </div>
+              <>
                 <div
                   onClick={handleGoToRegister}
                   className="PlaceholderName link link-accent bg-white rounded-lg p-6"
@@ -147,12 +149,7 @@ const ClientLogin = () => {
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="form-control mt-6">
-                <button className="btn btn-primary hover:btn-outline scale-75 hover:scale-110 placeholderName  transition-all text-xl ">
-                  {isForgotPass ? "Please Press Me" : "Login"}
-                </button>
-              </div>
+              </>
             </form>
           </div>
         </div>

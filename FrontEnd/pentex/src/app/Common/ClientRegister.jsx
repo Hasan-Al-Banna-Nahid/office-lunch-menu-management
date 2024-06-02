@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { BsToggleOff, BsToggleOn } from "react-icons/bs";
-import LoginPic from "../../../public/asset/login.png";
+import RegisterPic from "../../../public/asset/register.png";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,25 +35,13 @@ const ClientRegister = () => {
       <div className="hero  min-h-screen font-bold ">
         <div className="hero-content flex-col lg:flex-row-reverse bg-base-300 animate-glow2 rounded-lg">
           <div className="text-center lg:text-left">
-            <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-            <lottie-player
-              src="https://lottie.host/8c80f416-d119-4e26-b2fb-6785526bf7e3/WEI1nnD5iB.json"
-              background="##FFFFFF"
-              speed="1"
-              style={{ width: "300px", height: "300px" }}
-              loop
-              //   controls
-              autoplay
-              direction="1"
-              mode="normal"
-            ></lottie-player>
-            {/* <Image
-              src={LoginPic}
+            <Image
+              src={RegisterPic}
               placeholder="blur"
               quality={100}
               alt="LoginThumbnail"
               className=" rounded-lg"
-            /> */}
+            />
           </div>
           <div className="card  shrink-0 w-full max-w-sm shadow-2xl ">
             {isForgotPass && (
@@ -112,7 +100,13 @@ const ClientRegister = () => {
                   </label>
                 </div>
               )}
-              <div>
+
+              <div className="form-control mt-6">
+                <button className="btn btn-primary hover:btn-outline scale-75 hover:scale-110 placeholderName  transition-all text-xl ">
+                  {isForgotPass ? "Please Press Me" : "Login"}
+                </button>
+              </div>
+              <>
                 <div
                   onClick={handleGoToLogin}
                   className="PlaceholderName link link-accent bg-white p-4 rounded-lg"
@@ -128,12 +122,7 @@ const ClientRegister = () => {
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="form-control mt-6">
-                <button className="btn btn-primary hover:btn-outline scale-75 hover:scale-110 placeholderName  transition-all text-xl ">
-                  {isForgotPass ? "Please Press Me" : "Login"}
-                </button>
-              </div>
+              </>
             </form>
           </div>
         </div>
