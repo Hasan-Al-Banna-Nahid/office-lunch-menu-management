@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: { auth: "http://localhost:5000/api/v1/auth/login" },
   // images: {
   //   // domains: ["localhost"],
   //   remotePatterns: [

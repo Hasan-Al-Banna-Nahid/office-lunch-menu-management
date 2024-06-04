@@ -7,6 +7,9 @@
 .PlaceholderName {
   @apply bg-gradient-to-r from-red-500 to-purple-800 to-white bg-clip-text text-transparent;
 }
+.tableColor {
+  @apply bg-gradient-to-r from-slate-800 to-purple-800 to-slate-950 bg-clip-text text-transparent;
+}
 @keyframes glow {
   0% {
     box-shadow: 0 0 5px #7e22ce, 0 0 10px #7e22ce, 0 0 20px #7e22ce,

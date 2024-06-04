@@ -29,10 +29,18 @@ const ClientLogin = () => {
       typeof window !== "undefined"
         ? window.localStorage.setItem("access-token", response.data.token)
         : null;
-      setUser(response.data.user);
+      const token =
+        typeof window !== "undefined" &&
+        window.localStorage.getItem("access-token");
+      if (!token) {
+        router.push("/Auth/Login");
+        return;
+      }
+      typeof window !== "undefined" &&
+        window.localStorage.setItem("user", JSON.stringify(response.data.user));
       console.table(response);
       response.status === 200 && response.statusText === "OK"
-        ? router.push("/Navbar")
+        ? toast.success("Login Successfully,Wait!!!") && router.push("/Menu")
         : null;
     } catch (error) {
       toast.error(error.response.data.error);

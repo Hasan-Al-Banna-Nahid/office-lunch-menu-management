@@ -1,9 +1,12 @@
 import React from "react";
+import ClientMenu from "../Common/ClientMenu";
 
 const page = () => {
   return (
     <React.Fragment>
-      <div className="animate-glow animate-glow2"></div>
+      <>
+        <ClientMenu />
+      </>
     </React.Fragment>
   );
 };
